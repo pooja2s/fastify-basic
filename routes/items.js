@@ -4,46 +4,53 @@ const {
   addItem,
   deleteItem,
   updateItem,
-} = require('../controllers/items')
+} = require("../controllers/items");
 
 // Item schema
 const Item = {
-  type: 'object',
+  type: "object",
   properties: {
-    id: { type: 'string' },
-    name: { type: 'string' },
+    id: { type: "string" },
+    name: { type: "string" },
   },
-}
+};
 
 // Options for get all items
 const getItemsOpts = {
   schema: {
     response: {
       200: {
-        type: 'array',
+        type: "array",
         items: Item,
       },
     },
   },
   handler: getItems,
-}
+};
 
 const getItemOpts = {
   schema: {
+    params: {
+      type: "object",
+      properties: {
+        id: { type: "string" },
+      },
+      required: ["id"],
+    },
     response: {
       200: Item,
     },
   },
   handler: getItem,
-}
+};
 
 const postItemOpts = {
   schema: {
     body: {
-      type: 'object',
-      required: ['name'],
+      type: "object",
+      required: ["name"],
       properties: {
-        name: { type: 'string' },
+        name: { type: "string", maxLength: 50, minLength: 3 },
       },
     },
     response: {
@@ -51,48 +58,72 @@ const postItemOpts = {
     },
   },
   handler: addItem,
-}
+};
 
 const deleteItemOpts = {
   schema: {
+    params: {
+      type: "object",
+      properties: {
+        id: { type: "string" },
+      },
+      required: ["id"],
+    },
     response: {
       200: {
-        type: 'object',
+        type: "object",
         properties: {
-          message: { type: 'string' },
+          message: { type: "string" },
         },
       },
     },
   },
   handler: deleteItem,
-}
+};
 
 const updateItemOpts = {
   schema: {
+    params: {
+      type: "object",
+      properties: {
+        id: { type: "string" },
+      },
+      required: ["id"],
+    },
+    body: {
+      type: "object",
+      required: ["name"],
+      properties: {
+        name: { type: "string", maxLength: 50, minLength: 3 },
+      },
+    },
     response: {
       200: Item,
     },
   },
   handler: updateItem,
-}
+};
 
 function itemRoutes(fastify, options, done) {
-  // Get all items
-  fastify.get('/items', getItemsOpts)
+  // Register the JSON schema plugin
+  // fastify.register(require("fastify-schema"));
 
-  // Get single items
-  fastify.get('/items/:id', getItemOpts)
+  // Get all items
+  fastify.get("/items", getItemsOpts);
+
+  // Get single item
+  fastify.get("/items/:id", getItemOpts);
 
   // Add item
-  fastify.post('/items', postItemOpts)
+  fastify.post("/items", postItemOpts);
 
   // Delete item
-  fastify.delete('/items/:id', deleteItemOpts)
+  fastify.delete("/items/:id", deleteItemOpts);
 
   // Update item
-  fastify.put('/items/:id', updateItemOpts)
+  fastify.put("/items/:id", updateItemOpts);
 
-  done()
+  done();
 }
 
-module.exports = itemRoutes
+module.exports = itemRoutes;
